@@ -25,7 +25,7 @@
   (when-let [non-empty (seq (keep seq seqs))]
     (let [[head & more :as heads] (shuffle (map first non-empty))]
       (when (seq heads)
-        (lazy-seq (cons head (shuffle-combine (cons more (map rest non-empty)))))))))
+        (lazy-seq (cons head (apply shuffle-combine (cons more (map rest non-empty)))))))))
 
 (def rubbish-presentation
   "A canned seq of 5 funny images for testing the UI against."
