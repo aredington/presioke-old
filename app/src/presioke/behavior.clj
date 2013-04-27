@@ -1,6 +1,8 @@
 (ns ^:shared presioke.behavior
     (:require [clojure.string :as string]
-              [io.pedestal.app.messages :as msg]))
+              [io.pedestal.app.messages :as msg]
+              [clj-http.client :as client]
+              [cheshire.core :as json]))
 
 ;; While creating new behavior, write tests to confirm that it is
 ;; correct. For examples of various kinds of tests, see
@@ -12,12 +14,35 @@
 
 (def spigot-sources
   "Returns a list of all known image uri spigots that presioke can fetch images from."
-  '())
+  '(:flickr))
 
-(defn uri-spigot
+(def *flickr-api-key* "8c17cb16fb6c8c4b784926b5e325c3a3")
+
+(defn- flickr-search-url [q]
+  (str "http://api.flickr.com/services/rest/?method=flickr.photos.search"
+       "&api_key=" *flickr-api-key*
+       "&format=json"
+       "&text=" q))
+
+(defn- strip-flickr-nonsense [json]
+  (second
+   (re-matches #"jsonFlickrApi\((.*)\)" json)))
+
+(defn- flickr-photo-uri [{farm "farm" server "server" id "id" secret "secret"}]
+  (str "http://farm" farm ".staticflickr.com/" server "/" id "_" secret ".jpg"))
+
+(defmulti uri-spigot
   "Returns a lazily realized seq of image uris from `source`"
-  [source]
-  '())
+  (fn [source & _]
+    source))
+
+(defmethod uri-spigot :flickr [_ q]
+  (let [results (-> (client/get (flickr-search-url q))                    
+                    :body
+                    strip-flickr-nonsense
+                    json/parse-string
+                    (get-in ["photos" "photo"]))]
+    (map flickr-photo-uri results)))
 
 (defn shuffle-combine
   "Returns a lazy seq that consumes one item from the head of one of `seqs` at random and returns it."

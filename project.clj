@@ -5,7 +5,9 @@
                  [domina "1.0.1"]
                  [ch.qos.logback/logback-classic "1.0.6"]
                  [io.pedestal/pedestal.app "0.1.5"]
-                 [io.pedestal/pedestal.app-tools "0.1.5"]]
+                 [io.pedestal/pedestal.app-tools "0.1.5"]
+                 [clj-http "0.7.2"]
+                 [cheshire "5.1.1"]]
   :profiles {:dev {:source-paths ["dev"]}}
   :min-lein-version "2.0.0"
   :source-paths ["app/src" "app/templates"]
