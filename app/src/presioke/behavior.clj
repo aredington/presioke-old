@@ -10,9 +10,8 @@
 ;; app starts up. This message will include a :value key with the
 ;; value of the :init key from your dataflow.
 
-(defn spigot-sources
+(def spigot-sources
   "Returns a list of all known image uri spigots that presioke can fetch images from."
-  []
   '())
 
 (defn uri-spigot

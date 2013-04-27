@@ -54,8 +54,7 @@
   (re-matches #"http://[^/]/.*" string))
 
 (deftest test-uri-spigot
-  (let [spigot-sources (spigot-sources)]
-    (for [source spigot-sources]
-      (let [uri-seq (uri-spigot source)]
-        (is (every? uri? (take 10 uri-seq))
-            (str "uri-spigot for " source " returns a seq of uris"))))))
+  (for [source spigot-sources]
+    (let [uri-seq (uri-spigot source)]
+      (is (every? uri? (take 10 uri-seq))
+          (str "uri-spigot for " source " returns a seq of uris")))))
