@@ -51,10 +51,10 @@
 
 (defn uri?
   [string]
-  (re-matches #"http://[^/]/.*" string))
+  (re-matches #"http.*jpg" string))
 
 (deftest test-uri-spigot
-  (for [source spigot-sources]
-    (let [uri-seq (uri-spigot source)]
+  (doseq [source spigot-sources]
+    (let [uri-seq (uri-spigot source "wombats")]
       (is (every? uri? (take 10 uri-seq))
           (str "uri-spigot for " source " returns a seq of uris")))))
