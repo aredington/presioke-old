@@ -9,11 +9,41 @@
         presioke.behavior
         [io.pedestal.app.query :only [q]]))
 
-;; Test a transform function
+;; Test a transform functio
+(defn volatile-inc [n]
+        (if (< n 128)
+          (inc n)
+          (throw (ex-info "128 deep" {}))))
+(defn volatile-seq []
+  (iterate volatile-inc 1))
 
+(defn loud-cycle
+  "Returns a lazy (infinite!) sequence of repetitions of the items in coll."
+  [coll]
+  (println "\n-- cycling -------------------------------------")
+  (println  (interpose "\n" (map str  (.getStackTrace  (Thread/currentThread)))))
+  (println "\n-- done cycle ----------------------------------")
+  (lazy-seq
+      (when-let [s (seq coll)]
+        (concat s (loud-cycle s)))))
+
+(def loud-pres
+  "A canned seq of 5 funny images for testing the UI against."
+  (loud-cycle ["http://www.ihasaflavor.com/lolcats/i-has-a-bucket.jpg"
+          "http://2.bp.blogspot.com/-SnTjGcu-_PM/UVyG1J3kkEI/AAAAAAAAAIE/RxVWpc2UuQE/s1600/ceiling_cat.jpg"
+          "http://cdn5.benzinga.com/files/danger_zone_-_kenny_loggins_2.jpg"
+          "http://www.bhmpics.com/walls/success_kid-other.jpg"
+          "http://2.media.collegehumor.cvcdn.com/63/62/9c424ebbf9daa3cdef16dd7368e1eaa7-courage-wolf.jpg"]))
+
+(comment
+  ;; Strangely enough, volatile-seq DOES NOT run infinitely, but
+  ;; loud-pres does
+  (def dummy-image-spigot volatile-seq))
+
+(def dummy-image-spigot loud-pres)
 (deftest test-example-transform
-  (is (= (example-transform {} {msg/type msg/init, :value "x"})
-         "x")))
+  (is (= (example-transform {} {msg/type msg/init, :value dummy-image-spigot})
+         dummy-image-spigot)))
 
 ;; Build an application, send a message to a transform and check the transform
 ;; state
@@ -22,8 +52,8 @@
   (let [app (app/build example-app)]
     (app/begin app)
     (is (vector?
-         (test/run-sync! app [{msg/topic :example-transform, msg/type msg/init, :value "x"}])))
-    (is (= (-> app :state deref :models :example-transform) "x"))))
+         (test/run-sync! app [{msg/topic :example-transform, msg/type msg/init, :value dummy-image-spigot}])))
+    (is (= (-> app :state deref :models :example-transform) dummy-image-spigot))))
 
 ;; Use io.pedestal.app.query to query the current application model
 

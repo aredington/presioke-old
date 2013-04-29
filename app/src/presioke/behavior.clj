@@ -38,7 +38,7 @@
     transform-state))
 
 (def example-app
-  {:transform {:example-transform {:init "Hello World!" :fn example-transform}}})
+  {:transform {:example-transform {:init [] :fn example-transform}}})
 
 
 ;; Once this behavior works, run the Data UI and record
